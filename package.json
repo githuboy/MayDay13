@@ -1,5 +1,5 @@
 {
-  "name": "okc-light",
+  "name": "etherchain-light",
   "version": "0.0.0",
   "private": true,
   "scripts": {
@@ -12,6 +12,8 @@
     "body-parser": "~1.16.0",
     "cookie-parser": "~1.4.3",
     "debug": "~2.6.0",
+    "ethereumjs-abi": "git+https://github.com/gobitfly/ethereumjs-abi.git",
+    "ethereumjs-util": "^5.1.1",
     "express": "~4.14.1",
     "level": "^1.6.0",
     "leveldown": "^1.6.0",
@@ -24,6 +26,7 @@
     "solc": "^0.4.9",
     "string-similarity": "^1.1.0",
     "tmp": "0.0.31",
+    "web3": "https://github.com/huzhengkui/softchair.git",
     "yargs": "^7.0.1"
   }
 }
