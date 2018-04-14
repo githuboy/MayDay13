@@ -12,6 +12,7 @@ router.get('/pending', function(req, res, next) {
   var web3 = new Web3();
   web3.setProvider(config.provider);
   
+  
   async.waterfall([
     function(callback) {
     //  web3.parity.pendingTransactions(function(err, result) {
@@ -92,24 +93,66 @@ router.get('/:tx', function(req, res, next) {
         callback(err, result, receipt);
       });
     }, function(tx, receipt, callback) {  
-      web3.trace.transaction(tx.hash, function(err, traces) {
-        callback(err, tx, receipt, traces);
-      });
+    	var blk = tx.blockNumber;
+    	if(tx.blockNumber < 10)
+    	{
+    		blk = tx.blockNumber;
+    	}
+    	else
+    	{
+    		blk = 10;
+    	}
+    	
+      
+      var traces;
+
+    	for(;blk > 0;blk--)
+    	{
+    	   web3.okc.getBlock(blk,function(err, blk_result) {
+			   if(err)
+			   {
+				 console.log("penging error");
+			   }
+			   else
+			   {	
+				   blk_result.transactions.forEach(function(txHash){
+						   web3.okc.getTransactionReceipt(txHash, function(err, tx_result) 
+						   {
+							    if(tx_result.from == tx.from || tx_result.from == tx.to || tx_result.from == tx.to || tx_result.to == tx.from)
+							    	{
+							    		traces.push(tx_result);
+							    	}
+						    });
+					   });
+			   }
+	        });
+    	}
+    	//}
+//      web3.trace.transaction(tx.hash, function(err, traces) {
+          //callback(err, tx, receipt, traces);
+//      });
+        callback(null, tx, receipt, traces);
     }, function(tx, receipt, traces, callback) {
-      db.get(tx.to, function(err, value) {
-        callback(null, tx, receipt, traces, value);
+
+      db.get(tx.to, function(err,  value) {
+        callback(null, tx, receipt, traces,value);
       });
     }
   ], function(err, tx, receipt, traces, source) {
     if (err) {
       return next(err);
     }
-     
+   
+
+     var callsource;
+
     // Try to match the tx to a solidity function call if the contract source is available
     if (source) {
       tx.source = JSON.parse(source);
+
       try {
         var jsonAbi = JSON.parse(tx.source.abi);
+
         abiDecoder.addABI(jsonAbi);
         tx.logs = abiDecoder.decodeLogs(receipt.logs);
         tx.callInfo = abiDecoder.decodeMethod(tx.input);
@@ -127,13 +170,14 @@ router.get('/:tx', function(req, res, next) {
           tx.failed = true;
           tx.error = trace.error;
         }
-        if (trace.result && trace.result.gasUsed) {
-          tx.gasUsed += parseInt(trace.result.gasUsed, 16);
+        if (trace.gasUsed) {
+          tx.gasUsed += parseInt(trace.gasUsed, 16);
         }
       });
     }
     // console.log(tx.traces);    
-    res.render('tx', { tx: tx });
+    res.render('tx', { tx: tx});
+    res.render('traces', { traces: traces});
   });
   
 });
@@ -149,19 +193,20 @@ router.get('/raw/:tx', function(req, res, next) {
       web3.okc.getTransaction(req.params.tx, function(err, result) {
         callback(err, result);
       });
-    }, function(result, callback) {
-      web3.trace.replayTransaction(result.hash, ["trace", "stateDiff", "vmTrace"], function(err, traces) {
-        callback(err, result, traces);
-      });
+//    }, function(result, callback) {
+//      web3.trace.replayTransaction(result.hash, ["trace", "stateDiff", "vmTrace"], function(err, traces) {
+//        callback(err, result, traces);
+//      });
     }
-  ], function(err, tx, traces) {
+  ], function(err, tx) {
     if (err) {
       return next(err);
     }
     
-    tx.traces = traces;
+  //  tx.traces = traces;
 
     res.render('tx_raw', { tx: tx });
+    res.render('traces', { traces: traces});
   });
 });
 

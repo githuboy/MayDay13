@@ -82,10 +82,18 @@ router.get('/:account', function(req, res, next) {
       
       
     }, function(callback) {
-    	console.log("test start222 ");
 
+  var fromb;
+  if(data.lastBlock > 100)
+  {
+    fromb = data.lastBlock - 100;
+  } 
+  else
+  {
+    fromb = 0;
+  }
 
-	for (var fromb=data.lastBlock-2600;fromb < data.lastBlock;fromb++) {
+	for (;fromb < data.lastBlock;fromb++) {
 		web3.okc.getBlock(fromb, function(err, tempblock) {
 			if (err) {
 			      return next(err);

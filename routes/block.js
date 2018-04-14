@@ -32,6 +32,7 @@ router.get('/:block', function(req, res, next) {
     }
     
     block.transactions.forEach(function(tx) {
+      var traces;
       tx.traces = [];
       tx.failed = false;
       if (traces != null) {
