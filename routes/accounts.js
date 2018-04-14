@@ -11,21 +11,7 @@ router.get('/:offset?', function(req, res, next) {
   
   async.waterfall([
     function(callback) {
-//      web3.personal.listAccounts(20, req.params.offset, function(err, result) {
-//        callback(err, result);
-//      });
-  // 	web3.okc.traceBlockInfos(20, function(err, result) {
-  //        callback(err, result);
-  //      });
-   
-     // var tstcoinbase = web3.okc.coinbase;
-	/*web3.okc.getCoinbase(function(error,resp){
-		var tstcoinbase = resp;	
-		console.log(tstcoinbase); 
-	})*/
-	//web3.okc.getCoinbase(console.log);
-	//web3.okc.getAccounts(console.log);       
- 
+       
       var	result = 0;
       //callback(null, result);
       web3.okc.getAccounts(function(error,response){
