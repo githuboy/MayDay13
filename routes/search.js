@@ -8,7 +8,8 @@ router.post('/', function(req, res, next) {
     searchString = '0x' + searchString;
     
 	if (searchString.length === 2) {
-		return next({ message: "Error: Invalid search string!" });
+		res.redirect('/block/' + searchString);
+		//return next({ message: "Error: Invalid search string!" });
 	} else if (searchString.length < 22) {
 		// Most likely a block number, forward to block id handler
 		res.redirect('/block/' + searchString);
