@@ -44,25 +44,9 @@ router.post('/verify', function(req, res, next) {
   
   async.waterfall([
     function(callback) {
-      web3.trace.filter({ "fromBlock": "0x00", "toAddress": [ contractAddress ] }, function(err, traces) {
-        console.log("Received traces");
-        callback(err, traces);
-      });
-    }, function(traces, callback) {
-      var creationBytecode = null;
-      traces.forEach(function(trace) {
-        if (trace.type === "create" && trace.result.address === contractAddress && !trace.error) {
-          creationBytecode = trace.action.init;
-        }
-      });
-      
-      
-      console.log("Processed traces");
-      if (!creationBytecode) {
-        callback("Contract creation transaction not found");
-      } else {
-        callback(null, creationBytecode);
-      }
+      web3.okc.getCode(contractAddress,function(err,code){
+	  callback(err,code);
+	});
     }, function(creationBytecode, callback) {
       
       var tmpName = tmp.tmpNameSync();
