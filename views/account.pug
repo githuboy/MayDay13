@@ -40,9 +40,8 @@ block content
               th To
               th Amount
           tbody
-            for block in account.blocks
-              for trace in block
-                if trace.type == "reward" && trace.action.author == account.address
+              for trace in account.blocks
+                if trace.type === "reward" && trace.action.author === account.address
                   tr
                     td
                       a(href="/block/" + trace.blockNumber) #{trace.blockHash.substr(0, 10)}...

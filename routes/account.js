@@ -83,7 +83,7 @@ router.get('/:account', function(req, res, next) {
       
     }, function(callback) {
 
-      var blockCount = 500;
+      var blockCount = 1500;
       if(blockCount > data.lastBlock)
       {
         blockCount = data.lastBlock + 1;
@@ -103,45 +103,40 @@ router.get('/:account', function(req, res, next) {
       if (err) {
         return next(err);
       }
-        var trace_result = {
-          address:"",
-        }
 
-        var trace_action = {
-              author:"",
-              from:"",
-              to:"",
-              value:0
-            }
 
-        var traceblocks = {};
-        var trace = {
-            type  :"",
-            blockNumber:0,
-            blockHash:"",
-            transactionHash:"",
-            err:0,
-            result:trace_result,
-            action:trace_action
-        };
+    data.blocks = [];
+    data.txCounter = 0;
 
-        data.blocks = [];
-        data.txCounter = 0;
+    for(var i = 0; i < blocks.length ;i++){
+        for(var j = 0; j < blocks[i].transactions.length;j++){
+             var txx = blocks[i].transactions[j];
 
-    var txs = [];
-    blocks.forEach(function(block) {
-      block.transactions.forEach(function(txx) {
-                if (txs.length === 1000) {
-                  return;
-                }
-
-               if (!traceblocks[block.number]) {
-                    traceblocks[block.number] = [];
-                }
-                                
-             console.log("txx.from:"+txx.from + "  txx.to:"+ txx.to + "req.params.account"+req.params.account);
              if(txx.from === req.params.account || txx.to === req.params.account){      
-                 //console                        
+
+                      var trace_result = {
+                        address:"",
+                      }
+
+                      var trace_action = {
+                            author:"",
+                            from:"",
+                            to:"",
+                            value:0
+                          }
+
+
+                      var trace = {
+                          type  :"unknow",
+                          blockNumber:0,
+                          blockHash:"0x00000000000",
+                          transactionHash:"0x00000000000",
+                          err:0,
+                          result:trace_result,
+                          action:trace_action
+                      };
+
+                       
                       if(txx.to == "New Contract"){
                                  trace.type = "create";
                                   trace.result.address = "New Contract";
@@ -154,45 +149,15 @@ router.get('/:account', function(req, res, next) {
                         trace.action.to = txx.to;
                         trace.action.value = txx.value;
                         trace.transactionHash = txx.hash;
-                        trace.blockNumber = block.number;
-                        trace.err = 0
 
-                        console.log("trace.type:"+trace.type);
-                        traceblocks[block.number].push(trace);
-                        data.blocks.push(traceblocks[block.number]);
+                        
+                        trace.blockNumber = blocks[i].number;
+                        trace.err = 0;
+                        data.blocks.push(trace);
 
-                }     
-
-
-        txs.push(txx);
-      });
-    });
-
-
-
-    /*  blocks.forEach(function(block) {
-
-            if (!traceblocks[block.number]) {
-              traceblocks[block.number] = [];
-            }
-
-            //console.log("tempblock.miner:"+block.miner+" ||| "+req.params.account);
-
-                if(block.miner == req.params.account){
-                  trace.type = "reward"
-                  //trace.action.author = block.miner;
-                  trace.blockNumber = block.number;
-                  trace.action.value = 1000000000000000;
-                  trace.blockHash = block.hash;
-
-                 // console.log("trace.type:"+trace.type+" trace.action.author:"+trace.action.author);
-                  traceblocks[block.number].push(trace);
-                 // data.blocks.push(traceblocks[block.number]);
-                  //data.txCounter++;
-                 // console.log("txCounter: "+data.txCounter);
                 }  
-    });*/
-
+        }
+    }
 
     data.tracesSent = null;
     data.tracesReceived = null;
@@ -204,11 +169,10 @@ router.get('/:account', function(req, res, next) {
     } else if (config.names[data.address]) {
       data.name = config.names[data.address];
     }
-    
+
+
     data.blocks = data.blocks.reverse().splice(0, 100);
-    
-    //console.log("data.address:"+ data.address + " | "+data.txCounter);
-   // });
+
     res.render('account', { account: data });
   });
   
