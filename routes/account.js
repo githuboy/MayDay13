@@ -83,7 +83,7 @@ router.get('/:account', function(req, res, next) {
       
     }, function(callback) {
 
-      var blockCount = 100;
+      var blockCount = 500;
       if(blockCount > data.lastBlock)
       {
         blockCount = data.lastBlock + 1;
@@ -131,16 +131,17 @@ router.get('/:account', function(req, res, next) {
     var txs = [];
     blocks.forEach(function(block) {
       block.transactions.forEach(function(txx) {
-                if (txs.length === 100) {
+                if (txs.length === 1000) {
                   return;
                 }
 
-               if (!traceblocks[block.blockNumber]) {
-                    traceblocks[block.blockNumber] = [];
+               if (!traceblocks[block.number]) {
+                    traceblocks[block.number] = [];
                 }
                                 
-             console.log("txx.from:"+txx.from + "  txx.to:"+ txx.to);
-             if(txx.from === req.params.account || txx.to === req.params.account){                              
+             console.log("txx.from:"+txx.from + "  txx.to:"+ txx.to + "req.params.account"+req.params.account);
+             if(txx.from === req.params.account || txx.to === req.params.account){      
+                 //console                        
                       if(txx.to == "New Contract"){
                                  trace.type = "create";
                                   trace.result.address = "New Contract";
@@ -153,12 +154,12 @@ router.get('/:account', function(req, res, next) {
                         trace.action.to = txx.to;
                         trace.action.value = txx.value;
                         trace.transactionHash = txx.hash;
-                        trace.blockNumber = block.blockNumbe;
+                        trace.blockNumber = block.number;
                         trace.err = 0
 
                         console.log("trace.type:"+trace.type);
-                        traceblocks[block.blockNumber].push(trace);
-                        data.blocks.push(traceblocks[block.blockNumber]);
+                        traceblocks[block.number].push(trace);
+                        data.blocks.push(traceblocks[block.number]);
 
                 }     
 
@@ -169,28 +170,28 @@ router.get('/:account', function(req, res, next) {
 
 
 
-      blocks.forEach(function(block) {
+    /*  blocks.forEach(function(block) {
 
-            if (!traceblocks[block.blocNumber]) {
-              traceblocks[block.blockNumber] = [];
+            if (!traceblocks[block.number]) {
+              traceblocks[block.number] = [];
             }
 
             //console.log("tempblock.miner:"+block.miner+" ||| "+req.params.account);
 
                 if(block.miner == req.params.account){
                   trace.type = "reward"
-                  trace.action.author = block.miner;
-                  trace.blockNumber = block.blockNumber;
+                  //trace.action.author = block.miner;
+                  trace.blockNumber = block.number;
                   trace.action.value = 1000000000000000;
                   trace.blockHash = block.hash;
 
                  // console.log("trace.type:"+trace.type+" trace.action.author:"+trace.action.author);
-                  traceblocks[block.blockNumber].push(trace);
-                  data.blocks.push(traceblocks[block.blockNumber]);
+                  traceblocks[block.number].push(trace);
+                 // data.blocks.push(traceblocks[block.number]);
                   //data.txCounter++;
                  // console.log("txCounter: "+data.txCounter);
                 }  
-    });
+    });*/
 
 
     data.tracesSent = null;
