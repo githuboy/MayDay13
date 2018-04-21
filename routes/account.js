@@ -13,7 +13,7 @@ router.get('/:account', function(req, res, next) {
   var db = req.app.get('db');
   
   var data = {};
-  var blocks = {};
+ 
 
   async.waterfall([
     function(callback) {
@@ -83,77 +83,120 @@ router.get('/:account', function(req, res, next) {
       
     }, function(callback) {
 
-  var fromb;
-  if(data.lastBlock > 100)
-  {
-    fromb = data.lastBlock - 100;
-  } 
-  else
-  {
-    fromb = 0;
-  }
-
-	for (;fromb < data.lastBlock;fromb++) {
-		web3.okc.getBlock(fromb, function(err, tempblock) {
-			if (err) {
-			      return next(err);
-			    }
-
-			for(var txx in tempblock.transactions){
-				web3.okc.getTransaction(txx, function(err,tempacc){
-
-					if (!blocks[tempblock.blockNumber]) {
-						blocks[tempblock.blockNumber] = [];
-					}
-
-					if(txx.from === req.params.account){
-						blocks[tempblock.blockNumber].push(tempblock);
-					}else if(txx.to === req.params.account){
-						blocks[tempblock.blockNumber].push(tempblock);
-					}
-				});
-
-							
-			}
-	      	});	
-	}
-
-      //web3.trace.filter({ "fromBlock": "0x" + data.fromBlock.toString(16), "fromAddress": [ req.params.account ] }, function(err, traces) {
-       // callback(err, traces);
-      //});
-	callback(null,blocks);
-    }
-  ], function(err, tracesReceived) {
-    if (err) {
-      return next(err);
-    }
-    
-    
-    //var blocks = {};
-    /*data.tracesSent.forEach(function(trace) {
-      if (!blocks[trace.blockNumber]) {
-        blocks[trace.blockNumber] = [];
+      var blockCount = 100;
+      if(blockCount > data.lastBlock)
+      {
+        blockCount = data.lastBlock + 1;
       }
-      
-      blocks[trace.blockNumber].push(trace);
+
+      async.times(blockCount, function(n, next) {
+
+        web3.okc.getBlock(data.lastBlock - n, true, function(err, block) {
+          next(err, block);
+        });
+
+      }, function(err, blocks) {
+        callback(err, blocks);
+      });
+    }],function(err, blocks) {
+
+      if (err) {
+        return next(err);
+      }
+        var trace_result = {
+          address:"",
+        }
+
+        var trace_action = {
+              author:"",
+              from:"",
+              to:"",
+              value:0
+            }
+
+        var traceblocks = {};
+        var trace = {
+            type  :"",
+            blockNumber:0,
+            blockHash:"",
+            transactionHash:"",
+            err:0,
+            result:trace_result,
+            action:trace_action
+        };
+
+        data.blocks = [];
+        data.txCounter = 0;
+
+    var txs = [];
+    blocks.forEach(function(block) {
+      block.transactions.forEach(function(txx) {
+                if (txs.length === 100) {
+                  return;
+                }
+
+               if (!traceblocks[block.blockNumber]) {
+                    traceblocks[block.blockNumber] = [];
+                }
+                                
+             console.log("txx.from:"+txx.from + "  txx.to:"+ txx.to);
+             if(txx.from === req.params.account || txx.to === req.params.account){                              
+                      if(txx.to == "New Contract"){
+                                 trace.type = "create";
+                                  trace.result.address = "New Contract";
+                      }
+                      else{
+                                trace.type = "call";
+                      }
+
+                        trace.action.from = txx.from;
+                        trace.action.to = txx.to;
+                        trace.action.value = txx.value;
+                        trace.transactionHash = txx.hash;
+                        trace.blockNumber = block.blockNumbe;
+                        trace.err = 0
+
+                        console.log("trace.type:"+trace.type);
+                        traceblocks[block.blockNumber].push(trace);
+                        data.blocks.push(traceblocks[block.blockNumber]);
+
+                }     
+
+
+        txs.push(txx);
+      });
     });
-    data.tracesReceived.forEach(function(trace) {
-      if (!blocks[trace.blockNumber]) {
-        blocks[trace.blockNumber] = [];
-      }
-      
-      blocks[trace.blockNumber].push(trace);
-    });*/
-    
+
+
+
+      blocks.forEach(function(block) {
+
+            if (!traceblocks[block.blocNumber]) {
+              traceblocks[block.blockNumber] = [];
+            }
+
+            //console.log("tempblock.miner:"+block.miner+" ||| "+req.params.account);
+
+                if(block.miner == req.params.account){
+                  trace.type = "reward"
+                  trace.action.author = block.miner;
+                  trace.blockNumber = block.blockNumber;
+                  trace.action.value = 1000000000000000;
+                  trace.blockHash = block.hash;
+
+                 // console.log("trace.type:"+trace.type+" trace.action.author:"+trace.action.author);
+                  traceblocks[block.blockNumber].push(trace);
+                  data.blocks.push(traceblocks[block.blockNumber]);
+                  //data.txCounter++;
+                 // console.log("txCounter: "+data.txCounter);
+                }  
+    });
+
+
     data.tracesSent = null;
     data.tracesReceived = null;
+    data.address = req.params.account;
     
-    data.blocks = [];
-    var txCounter = 0;
-    for (var block in blocks) {
-      data.blocks.push(blocks[block]);
-      txCounter++;
-    }
     
     if (data.source) {
       data.name = data.source.name;
@@ -163,6 +206,8 @@ router.get('/:account', function(req, res, next) {
     
     data.blocks = data.blocks.reverse().splice(0, 100);
     
+    //console.log("data.address:"+ data.address + " | "+data.txCounter);
+   // });
     res.render('account', { account: data });
   });
   

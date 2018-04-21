@@ -44,9 +44,9 @@ router.post('/verify', function(req, res, next) {
   
   async.waterfall([
     function(callback) {
-      web3.okc.getCode(contractAddress,function(err,code){
-	  callback(err,code);
-	});
+      web3.okc.getCode(contractAddress, function(err, code) {
+        callback(err, code);
+      });
     }, function(creationBytecode, callback) {
       
       var tmpName = tmp.tmpNameSync();
