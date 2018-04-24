@@ -83,7 +83,7 @@ router.get('/:account', function(req, res, next) {
       
     }, function(callback) {
 
-      var blockCount = 1500;
+      var blockCount = 500;
       if(blockCount > data.lastBlock)
       {
         blockCount = data.lastBlock + 1;
