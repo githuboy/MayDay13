@@ -38,23 +38,28 @@ router.get('/:account', function(req, res, next) {
       });
     }, function(code, callback) {
       data.code = code;
+
       if (code !== "0x") {
         data.isContract = true;
       }
+
+      
       
       db.get(req.params.account.toLowerCase(), function(err, value) {
         callback(null, value);
       });
     }, function(source, callback) {
-      
+
       if (source) {
         data.source = JSON.parse(source);
-        
+       // console.log("@@"+data.source +"@1");
         data.contractState = [];
+        //console.log("@abi@"+data.source.abi +"@1");
         if (!data.source.abi) {
           return callback();
         }
         var abi = JSON.parse(data.source.abi);
+       // console.log("@###abi@"+abi +"@1");
         var contract = web3.okc.contract(abi).at(req.params.account);
         
         
@@ -138,8 +143,8 @@ router.get('/:account', function(req, res, next) {
 
                        
                       if(txx.to == "New Contract"){
-                                 trace.type = "create";
-                                  trace.result.address = "New Contract";
+                               trace.type = "create";
+                              trace.result.address = "New Contract";
                       }
                       else{
                                 trace.type = "call";

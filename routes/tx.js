@@ -15,9 +15,6 @@ router.get('/pending', function(req, res, next) {
   
   async.waterfall([
     function(callback) {
-    //  web3.parity.pendingTransactions(function(err, result) {
-    //    callback(err, result);
-    //  });
         web3.okc.getBlock("pending",function(err, result) {
 	   if(err)
 	   {
@@ -92,11 +89,32 @@ router.get('/:tx', function(req, res, next) {
       web3.okc.getTransactionReceipt(result.hash, function(err, receipt) {
         callback(err, result, receipt);
       });
+    },function(tx, receipt,callback){
+       db.get(tx.to, function(err, value){
+            callback(null,tx ,receipt,value);
+       });
     }
-  ], function(err, tx, receipt) {
+  ], function(err, tx, receipt,source) {
 
     if (err) {
       return next(err);
+    }
+
+
+    if(source){
+       tx.source = JSON.parse(source);
+       try{
+         var jsonAbi = JSON.parse(tx.source.abi);
+         abiDecoder.addABI(jsonAbi);
+         tx.logs = abiDecoder.decodeLogs(receipt.logs);
+
+         //console.log("tx.logs:"+tx.logs);
+         tx.callInfo = abiDecoder.decodeMethod(tx.input);
+
+         //console.log("tx.callInfo:",tx.callInfo);
+       }catch(e){
+        console.log("Err parse ABI:",tx.source.abi,e);
+       }
     }
  
     var trace_result = {
@@ -124,7 +142,7 @@ router.get('/:tx', function(req, res, next) {
     trace.type = "call";
     trace.action.from = tx.from;
 
-    console.log(tx.to);
+    //console.log(tx.to);
     if(tx.to == null){
       trace.action.to = receipt.contractAddress;
       tx.contractAddress =  receipt.contractAddress;
