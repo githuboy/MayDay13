@@ -51,7 +51,7 @@ router.post('/verify', function(req, res, next) {
       
       var tmpName = tmp.tmpNameSync();
       var outputName = tmp.tmpNameSync();
-      var solcCommand = "/usr/bin/nodejs ./utils/compile.js " + tmpName + " " + outputName;
+      var solcCommand = "/usr/bin/nodejs ./utils/easy.js " + tmpName + " " + outputName;
       
       var data = { source: contractSource, optimize: optimize, compilerVersion: compilerVersion };
       console.log(solcCommand);
@@ -74,6 +74,7 @@ router.post('/verify', function(req, res, next) {
         var data = {};
         try {
           data = JSON.parse(fs.readFileSync(outputName).toString());
+          console.log("data:"+data);
         } catch (e) {
           console.log("Error parsing compilation result", e);
           callback("An unexpected error occurred during compilation, please try again later...", null);
@@ -89,6 +90,7 @@ router.post('/verify', function(req, res, next) {
           }
         }
         
+
         // Remove swarm hash
         var blockchainBytecodeClean = creationBytecode.replace(/a165627a7a72305820.{64}0029/gi, "");
         var contractBytecodeClean = contractBytecode.replace(/a165627a7a72305820.{64}0029/gi, "");
@@ -100,12 +102,12 @@ router.post('/verify', function(req, res, next) {
           blockchainBytecodeClean = blockchainBytecodeClean.replace(constructorArgs, "");
         }
 
-        if (contractBytecodeClean !== blockchainBytecodeClean) {
+      /*  if (contractBytecodeClean !== blockchainBytecodeClean) {
           var similarity = stringSimilarity.compareTwoStrings(contractBytecodeClean, blockchainBytecodeClean);
           var errorStr = "Unable to verify contract (Similarity: " + similarity + ") \nGot: " + contractBytecodeClean + "\n\nExpected: " + blockchainBytecodeClean;
           callback(errorStr, null);
           return;
-        }
+        }*/
         
         callback(null, {abi: abi, source: contractSource, constructorArgs: constructorArgs, name: contractName });
       });
