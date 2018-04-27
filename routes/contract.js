@@ -90,7 +90,7 @@ router.post('/verify', function(req, res, next) {
           }
         }
         
-
+//	console.log("abi:"+abi);
         // Remove swarm hash
         var blockchainBytecodeClean = creationBytecode.replace(/a165627a7a72305820.{64}0029/gi, "");
         var contractBytecodeClean = contractBytecode.replace(/a165627a7a72305820.{64}0029/gi, "");
