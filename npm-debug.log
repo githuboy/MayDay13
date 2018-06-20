@@ -1,0 +1,31 @@
+0 info it worked if it ends with ok
+1 verbose cli [ '/usr/local/bin/node', '/usr/local/bin/npm', 'start' ]
+2 info using npm@1.1.61
+3 info using node@v0.9.2
+4 verbose node symlink /usr/local/bin/node
+5 verbose read json /home/chakera/workplace/05_okcLight/package.json
+6 warn package.json okgame@0.0.0 No README.md file found!
+7 verbose run-script [ 'prestart', 'start', 'poststart' ]
+8 info prestart okgame@0.0.0
+9 info start okgame@0.0.0
+10 verbose unsafe-perm in lifecycle true
+11 silly exec sh "-c" "node ./bin/www"
+12 silly sh,-c,node ./bin/www,/home/chakera/workplace/05_okcLight spawning
+13 info okgame@0.0.0 Failed to exec start script
+14 error okgame@0.0.0 start: `node ./bin/www`
+14 error `sh "-c" "node ./bin/www"` failed with 1
+15 error Failed at the okgame@0.0.0 start script.
+15 error This is most likely a problem with the okgame package,
+15 error not with npm itself.
+15 error Tell the author that this fails on your system:
+15 error     node ./bin/www
+15 error You can get their info via:
+15 error     npm owner ls okgame
+15 error There is likely additional logging output above.
+16 error System Linux 4.15.0-22-generic
+17 error command "/usr/local/bin/node" "/usr/local/bin/npm" "start"
+18 error cwd /home/chakera/workplace/05_okcLight
+19 error node -v v0.9.2
+20 error npm -v 1.1.61
+21 error code ELIFECYCLE
+22 verbose exit [ 1, true ]
