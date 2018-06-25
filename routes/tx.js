@@ -15,25 +15,29 @@ router.get('/pending', function(req, res, next) {
   
   async.waterfall([
     function(callback) {
-        web3.okc.getBlock("pending",function(err, result) {
-	   if(err)
-	   {
-		console.log("penging error");
-	   }
-	   else
-	   {	
-		console.log(result.transactions);
-                callback(null, result.transactions);
-	   }
+     web3.okc.getBlock("pending",true,function(err, block) {
+           if(err){
+                    return next(err);
+           }else{
+                    console.log(block.transactions);
+              callback(null, block);
+           }
         });
-	
+
 
     }
-  ], function(err, txs) {
+  ], function(err, block) {
     if (err) {
       return next(err);
     }
-    
+
+
+    var txs = [];
+
+      block.transactions.forEach(function(tx) {
+        txs.push(tx);
+      });
+
     res.render('tx_pending', { txs: txs });
   });
 });
