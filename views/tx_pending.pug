@@ -26,5 +26,5 @@ block content
                 a(href="/account/" + tx.to) #{nameformatter.format(tx.to)}
               else
                 | OKContract
-            td #{ethformatter(tx.value)}
-            td #{ethformatter(tx.gasPrice)}
+            td #{okcformatter(tx.value)}
+            td #{okcformatter(tx.gasPrice)}

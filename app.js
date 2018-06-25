@@ -40,7 +40,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.locals.moment = require('moment');
 app.locals.numeral = require('numeral');
-app.locals.ethformatter = require('./utils/ethformatter.js');
+app.locals.okcformatter = require('./utils/okcformatter.js');
 app.locals.nameformatter = new(require('./utils/nameformatter.js'))(config);
 app.locals.nodeStatus = new(require('./utils/nodeStatus.js'))(config);
 app.locals.config = config;

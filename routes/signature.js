@@ -8,20 +8,20 @@ router.get('/verify', function(req, res, next) {
 });
 
 router.post('/verify', function(req, res, next) {
-  var ethereumAddress = req.body.okcereumAddress.toLowerCase().replace("0x", "");
+  var okcAddress = req.body.okcereumAddress.toLowerCase().replace("0x", "");
   var message = req.body.message;
   var signature = req.body.signature;
   
-  if (!ethereumAddress) {
-    res.render('verifySignature', { result: { error: "Invalid okc Address"}, message: message, signature: signature, ethereumAddress: ethereumAddress });
+  if (!okcAddress) {
+    res.render('verifySignature', { result: { error: "Invalid okc Address"}, message: message, signature: signature, okcAddress: okcAddress });
     return;
   }
   if (!message) {
-    res.render('verifySignature', { result: { error: "Invalid Message"}, message: message, signature: signature, ethereumAddress: ethereumAddress });
+    res.render('verifySignature', { result: { error: "Invalid Message"}, message: message, signature: signature, okcAddress: okcAddress });
     return;
   }
   if (!signature) {
-    res.render('verifySignature', { result: { error: "Invalid Signature"}, message: message, signature: signature, ethereumAddress: ethereumAddress });
+    res.render('verifySignature', { result: { error: "Invalid Signature"}, message: message, signature: signature, okcAddress: okcAddress });
     return;
   }
   
@@ -31,15 +31,15 @@ router.post('/verify', function(req, res, next) {
     var recoveredPub = utils.ecrecover(msgSha, sigDecoded.v, sigDecoded.r, sigDecoded.s);
     var recoveredAddress = utils.pubToAddress(recoveredPub).toString("hex");
 
-    if (ethereumAddress === recoveredAddress) {
-      res.render('verifySignature', { result: { ok: "Signature is valid!"}, message: message, signature: signature, ethereumAddress: ethereumAddress });
+    if (okcAddress === recoveredAddress) {
+      res.render('verifySignature', { result: { ok: "Signature is valid!"}, message: message, signature: signature, okcAddress: okcAddress });
       return;
     } else {
-      res.render('verifySignature', { result: { error: "Signature is not valid!"}, message: message, signature: signature, ethereumAddress: ethereumAddress });
+      res.render('verifySignature', { result: { error: "Signature is not valid!"}, message: message, signature: signature, okcAddress: okcAddress });
       return;
     }
   } catch (e) {
-    res.render('verifySignature', { result: { error: "Error during signature verification: " + e}, message: message, signature: signature, ethereumAddress: ethereumAddress });
+    res.render('verifySignature', { result: { error: "Error during signature verification: " + e}, message: message, signature: signature, okcAddress: okcAddress });
     return;
   }
 });

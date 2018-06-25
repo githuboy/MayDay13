@@ -3,7 +3,7 @@ var router = express.Router();
 
 var async = require('async');
 var Web3 = require('web3');
-var abi = require('ethereumjs-abi');
+var abi = require('abi');
 var abiDecoder = require('abi-decoder');
 
 router.get('/pending', function(req, res, next) {
