@@ -27,6 +27,7 @@
     "string-similarity": "^1.1.0",
     "tmp": "0.0.31",
     "web3": "https://github.com/huzhengkui/softchair.git",
+    "solc-bin": "https://github.com/ethereum/solc-bin.git",
     "yargs": "^7.0.1"
   }
 }
